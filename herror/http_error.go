@@ -1,7 +1,11 @@
 package herror
 
 import (
-	"io"
+	"bytes"
+	"encoding/json"
+	"errors"
+	"net/http"
+	"sync"
 
 	"github.com/donbarrigon/utils/lang"
 )
@@ -53,10 +57,31 @@ func (e *HttpError) Translate(l string) {
 	e.StatusText = lang.T(l, e.StatusText, nil)
 }
 
-func (e *HttpError) WriteJSON(w io.Writer) Error {
+var httpErrorBufPool = sync.Pool{
+	New: func() any {
+		return new(bytes.Buffer)
+	},
+}
+
+func (e *HttpError) WriteJSON(w http.ResponseWriter) Error {
+	if w == nil {
+		return InternalServerError(errors.New("http.ResponseWriter is nil"))
+	}
+
+	buf := httpErrorBufPool.Get().(*bytes.Buffer)
+	buf.Reset()
+	defer httpErrorBufPool.Put(buf)
+
+	if err := json.NewEncoder(buf).Encode(e); err != nil {
+		return InternalServerError(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(e.Status)
+	_, _ = w.Write(buf.Bytes())
 	return nil
 }
 
-func (e *HttpError) WriteProto(w io.Writer) Error {
+func (e *HttpError) WriteProto(w http.ResponseWriter) Error {
 	return nil
 }

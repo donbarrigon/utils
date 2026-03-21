@@ -1,12 +1,10 @@
 package herror
 
-import (
-	"io"
-)
+import "net/http"
 
 type Error interface {
 	Error() string
 	Translate(lang string)
-	WriteJSON(w io.Writer) Error
-	WriteProto(w io.Writer) Error
+	WriteJSON(w http.ResponseWriter) Error
+	WriteProto(w http.ResponseWriter) Error
 }
