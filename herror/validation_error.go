@@ -34,7 +34,7 @@ func (e *ValidationError) AppendM(field string, message string) {
 	e.Placeholders[field] = append(e.Placeholders[field], str.Placeholder{{Key: "field", Value: field}})
 }
 
-func (e *ValidationError) HasErrors() error {
+func (e *ValidationError) HasErrors() Error {
 	if len(e.Messages) > 0 {
 		return e
 	}
