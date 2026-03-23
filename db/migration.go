@@ -81,7 +81,7 @@ func (c *CollectionBuilder) indexOne(fields ...string) {
 	}
 	fm += "]"
 
-	name, e := DB.Collection(c.Name).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+	name, e := Mongo.Collection(c.Name).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
 		Keys: keys,
 	})
 	if e != nil {
@@ -107,7 +107,7 @@ func (c *CollectionBuilder) indexUnique(fields ...string) {
 	}
 	fm += "]"
 
-	name, e := DB.Collection(c.Name).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+	name, e := Mongo.Collection(c.Name).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
 		Keys:    keys,
 		Options: options.Index().SetUnique(true),
 	})
@@ -134,7 +134,7 @@ func (c *CollectionBuilder) indexSparce(fields ...string) {
 	}
 	fm += "]"
 
-	name, e := DB.Collection(c.Name).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+	name, e := Mongo.Collection(c.Name).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
 		Keys:    keys,
 		Options: options.Index().SetSparse(true),
 	})
@@ -154,7 +154,7 @@ func (c *CollectionBuilder) indexText(fields ...string) {
 	}
 	fm += "]"
 
-	name, e := DB.Collection(c.Name).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+	name, e := Mongo.Collection(c.Name).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
 		Keys: keys,
 	})
 	if e != nil {
@@ -165,7 +165,7 @@ func (c *CollectionBuilder) indexText(fields ...string) {
 }
 
 func (c *CollectionBuilder) indexHashed(field string) {
-	name, e := DB.Collection(c.Name).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+	name, e := Mongo.Collection(c.Name).Indexes().CreateOne(context.TODO(), mongo.IndexModel{
 		Keys: bson.D{{Key: field, Value: "hashed"}},
 	})
 	if e != nil {
@@ -176,7 +176,7 @@ func (c *CollectionBuilder) indexHashed(field string) {
 }
 
 func (c *CollectionBuilder) CreateIndex(model mongo.IndexModel, opts ...options.Lister[options.CreateIndexesOptions]) {
-	name, e := DB.Collection(c.Name).Indexes().CreateOne(context.TODO(), model, opts...)
+	name, e := Mongo.Collection(c.Name).Indexes().CreateOne(context.TODO(), model, opts...)
 	if e != nil {
 		logs.Error("Error al crear el indice :collection :error", str.Placeholder{
 			{Key: "collection", Value: c.Name},
@@ -192,7 +192,7 @@ func (c *CollectionBuilder) CreateIndex(model mongo.IndexModel, opts ...options.
 
 func (c *CollectionBuilder) DropIndex(indexName string) {
 
-	e := DB.Collection(c.Name).Indexes().DropOne(context.TODO(), indexName)
+	e := Mongo.Collection(c.Name).Indexes().DropOne(context.TODO(), indexName)
 	if e != nil {
 		logs.Error("Error al eliminar el indice :collection :name :error ", str.Placeholder{
 			{Key: "collection", Value: c.Name},
@@ -209,7 +209,7 @@ func (c *CollectionBuilder) DropIndex(indexName string) {
 
 func (c *CollectionBuilder) DropAllIndexes() {
 
-	e := DB.Collection(c.Name).Indexes().DropAll(context.TODO())
+	e := Mongo.Collection(c.Name).Indexes().DropAll(context.TODO())
 	if e != nil {
 		logs.Error("Error al eliminar todos los indices :collection :error ", str.Placeholder{
 			{Key: "collection", Value: c.Name},
@@ -224,7 +224,7 @@ func (c *CollectionBuilder) DropAllIndexes() {
 
 func DropCollection(collection string) {
 
-	e := DB.Collection(collection).Drop(context.TODO())
+	e := Mongo.Collection(collection).Drop(context.TODO())
 	if e != nil {
 		logs.Error("Failed to drop collection :collection :error ", str.Placeholder{
 			{Key: "collection", Value: collection},

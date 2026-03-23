@@ -45,6 +45,12 @@ type Odm struct {
 	original map[string]any `bson:"-" json:"-"`
 }
 
+// fuciones para parchar cosas estas se tienen que sobreescribir
+func (o *Odm) CollectionName() string { return "" }
+func (o *Odm) GetID() bson.ObjectID   { return bson.NewObjectID() }
+func (o *Odm) SetID(id bson.ObjectID) {}
+
+// funciones observers
 func (o *Odm) BeforeCreate() herror.Error { return nil }
 func (o *Odm) BeforeUpdate() herror.Error { return nil }
 func (o *Odm) BeforeDelete() herror.Error { return nil }
@@ -52,10 +58,19 @@ func (o *Odm) AfterCreate() herror.Error  { return nil }
 func (o *Odm) AfterUpdate() herror.Error  { return nil }
 func (o *Odm) AfterDelete() herror.Error  { return nil }
 
+// funciones utiles de para las funciones fill y cositas por ahi
 func (o *Odm) GetOriginal() map[string]any         { return o.original }
 func (o *Odm) GetDirty() map[string]any            { return o.dirty }
 func (o *Odm) SetOriginal(original map[string]any) { o.original = original }
 func (o *Odm) SetDirty(dirty map[string]any)       { o.dirty = dirty }
+
+// funciones para azucar sintactico
+func (o *Odm) Fill(validator any) herror.Error      { return Fill(o, validator) }
+func (o *Odm) FillDirty(validator any) herror.Error { return FillDirty(o, validator) }
+
+// ================================================================
+// funciones CRUD
+// ================================================================
 
 func (o *Odm) FindByHexID(id string) herror.Error {
 
@@ -64,7 +79,7 @@ func (o *Odm) FindByHexID(id string) herror.Error {
 		return herror.HexID(e)
 	}
 	filter := bson.D{bson.E{Key: "_id", Value: objectId}}
-	if e := DB.Collection(o.Model.CollectionName()).FindOne(context.TODO(), filter).Decode(o.Model); e != nil {
+	if e := Mongo.Collection(o.Model.CollectionName()).FindOne(context.TODO(), filter).Decode(o.Model); e != nil {
 		return herror.Mongo(e)
 	}
 	return nil
@@ -72,7 +87,7 @@ func (o *Odm) FindByHexID(id string) herror.Error {
 
 func (o *Odm) FindByID(id bson.ObjectID) herror.Error {
 	filter := bson.D{bson.E{Key: "_id", Value: id}}
-	if e := DB.Collection(o.Model.CollectionName()).FindOne(context.TODO(), filter).Decode(o.Model); e != nil {
+	if e := Mongo.Collection(o.Model.CollectionName()).FindOne(context.TODO(), filter).Decode(o.Model); e != nil {
 		return herror.Mongo(e)
 	}
 	return nil
@@ -80,14 +95,14 @@ func (o *Odm) FindByID(id bson.ObjectID) herror.Error {
 
 func (o *Odm) First(field string, value any) herror.Error {
 	filter := bson.D{bson.E{Key: field, Value: value}}
-	if e := DB.Collection(o.Model.CollectionName()).FindOne(context.TODO(), filter).Decode(o.Model); e != nil {
+	if e := Mongo.Collection(o.Model.CollectionName()).FindOne(context.TODO(), filter).Decode(o.Model); e != nil {
 		return herror.Mongo(e)
 	}
 	return nil
 }
 
 func (o *Odm) FindOne(filter bson.D, opts ...options.Lister[options.FindOneOptions]) herror.Error {
-	if e := DB.Collection(o.Model.CollectionName()).FindOne(context.TODO(), filter, opts...).Decode(o.Model); e != nil {
+	if e := Mongo.Collection(o.Model.CollectionName()).FindOne(context.TODO(), filter, opts...).Decode(o.Model); e != nil {
 		return herror.Mongo(e)
 	}
 	return nil
@@ -95,7 +110,7 @@ func (o *Odm) FindOne(filter bson.D, opts ...options.Lister[options.FindOneOptio
 
 func (o *Odm) Find(result any, filter bson.D, opts ...options.Lister[options.FindOptions]) herror.Error {
 	ctx := context.TODO()
-	cursor, e := DB.Collection(o.Model.CollectionName()).Find(ctx, filter, opts...)
+	cursor, e := Mongo.Collection(o.Model.CollectionName()).Find(ctx, filter, opts...)
 	if e != nil {
 		return herror.Mongo(e)
 	}
@@ -109,7 +124,7 @@ func (o *Odm) Find(result any, filter bson.D, opts ...options.Lister[options.Fin
 func (o *Odm) FindByField(result any, field string, value any, opts ...options.Lister[options.FindOptions]) herror.Error {
 	filter := bson.D{bson.E{Key: field, Value: value}}
 	ctx := context.TODO()
-	cursor, e := DB.Collection(o.Model.CollectionName()).Find(ctx, filter, opts...)
+	cursor, e := Mongo.Collection(o.Model.CollectionName()).Find(ctx, filter, opts...)
 	if e != nil {
 		return herror.Mongo(e)
 	}
@@ -121,7 +136,7 @@ func (o *Odm) FindByField(result any, field string, value any, opts ...options.L
 
 func (o *Odm) Aggregate(result any, pipeline mongo.Pipeline) herror.Error {
 	ctx := context.TODO()
-	cursor, e := DB.Collection(o.Model.CollectionName()).Aggregate(ctx, pipeline)
+	cursor, e := Mongo.Collection(o.Model.CollectionName()).Aggregate(ctx, pipeline)
 	if e != nil {
 		return herror.Mongo(e)
 	}
@@ -133,7 +148,7 @@ func (o *Odm) Aggregate(result any, pipeline mongo.Pipeline) herror.Error {
 
 func (o *Odm) AggregateOne(pipeline mongo.Pipeline) herror.Error {
 	ctx := context.TODO()
-	cursor, e := DB.Collection(o.Model.CollectionName()).Aggregate(ctx, pipeline)
+	cursor, e := Mongo.Collection(o.Model.CollectionName()).Aggregate(ctx, pipeline)
 	if e != nil {
 		return herror.Mongo(e)
 	}
@@ -152,7 +167,7 @@ func (o *Odm) Create() herror.Error {
 	if e := o.Model.BeforeCreate(); e != nil {
 		return e
 	}
-	result, e := DB.Collection(o.Model.CollectionName()).InsertOne(context.TODO(), o.Model)
+	result, e := Mongo.Collection(o.Model.CollectionName()).InsertOne(context.TODO(), o.Model)
 	if e != nil {
 		return herror.Mongo(e)
 	}
@@ -181,7 +196,7 @@ func (o *Odm) CreateMany(data any) herror.Error {
 			return e
 		}
 	}
-	collection := DB.Collection(o.Model.CollectionName())
+	collection := Mongo.Collection(o.Model.CollectionName())
 	result, e := collection.InsertMany(context.TODO(), data)
 	if e != nil {
 		return herror.Mongo(e)
@@ -207,7 +222,7 @@ func (o *Odm) Update() herror.Error {
 	filter := bson.D{bson.E{Key: "_id", Value: o.Model.GetID()}}
 	update := bson.D{bson.E{Key: "$set", Value: o.Model}}
 
-	result, e := DB.Collection(o.Model.CollectionName()).UpdateOne(context.TODO(), filter, update)
+	result, e := Mongo.Collection(o.Model.CollectionName()).UpdateOne(context.TODO(), filter, update)
 	if e != nil {
 		return herror.Mongo(e)
 	}
@@ -223,7 +238,7 @@ func (o *Odm) Update() herror.Error {
 
 func (o *Odm) UpdateBy(validator any) herror.Error {
 
-	if e := Filld(o.Model, validator); e != nil {
+	if e := FillDirty(o.Model, validator); e != nil {
 		return e
 	}
 	return o.Update()
@@ -238,7 +253,7 @@ func (o *Odm) Delete() herror.Error {
 
 	filter := bson.D{bson.E{Key: "_id", Value: o.Model.GetID()}}
 
-	result, e := DB.Collection(o.Model.CollectionName()).DeleteOne(context.TODO(), filter)
+	result, e := Mongo.Collection(o.Model.CollectionName()).DeleteOne(context.TODO(), filter)
 	if e != nil {
 		return herror.Mongo(e)
 	}

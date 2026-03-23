@@ -78,7 +78,7 @@ func Fill(model any, request any) herror.Error {
 // Usa el tag bson como clave.
 // Además actualiza el model con los valores nuevos.
 // @return error
-func Filld(model OdmModel, request any) herror.Error {
+func FillDirty(model OdmModel, request any) herror.Error {
 
 	original := map[string]any{}
 	dirty := map[string]any{}
