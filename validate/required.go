@@ -7,7 +7,7 @@ import (
 )
 
 // Required valida que el valor no sea falsy o un valor cero
-func Required(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func Required(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	ph := str.Placeholder{}
 
 	if !value.IsValid() {
@@ -54,7 +54,7 @@ func Required(value reflect.Value, params ...string) (string, str.Placeholder, b
 		if value.IsNil() {
 			return "The :field field is required.", ph, true
 		}
-		return Required(value.Elem(), params...)
+		return Required(value.Elem(), params)
 
 	case reflect.Chan, reflect.Func:
 		if value.IsNil() {

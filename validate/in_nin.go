@@ -9,7 +9,7 @@ import (
 )
 
 // In valida que el valor esté presente en la lista de valores permitidos
-func In(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func In(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	if len(params) < 1 {
 		return "At least one allowed value is required.", str.Placeholder{}, true
 	}
@@ -124,7 +124,7 @@ func In(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
 }
 
 // Nin valida que el valor NO esté presente en la lista de valores prohibidos
-func Nin(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func Nin(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	if len(params) < 1 {
 		return "At least one forbidden value is required.", str.Placeholder{}, true
 	}

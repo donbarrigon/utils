@@ -52,7 +52,7 @@ var RegexMap = map[string]string{
 var regexCache = map[string]*regexp.Regexp{}
 
 // Regex valida que el valor coincida con la expresión regular especificada
-func Regex(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func Regex(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	if len(params) < 1 {
 		return "A regular expression pattern is required.", str.Placeholder{}, true
 	}

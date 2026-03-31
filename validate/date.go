@@ -8,7 +8,7 @@ import (
 )
 
 // Before valida que la fecha sea anterior a la fecha especificada
-func Before(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func Before(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	if len(params) < 1 {
 		return "A date parameter is required.", str.Placeholder{}, true
 	}
@@ -37,7 +37,7 @@ func Before(value reflect.Value, params ...string) (string, str.Placeholder, boo
 }
 
 // After valida que la fecha sea posterior a la fecha especificada
-func After(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func After(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	if len(params) < 1 {
 		return "A date parameter is required.", str.Placeholder{}, true
 	}
@@ -66,7 +66,7 @@ func After(value reflect.Value, params ...string) (string, str.Placeholder, bool
 }
 
 // BeforeNow valida que la fecha sea anterior a la fecha actual
-func BeforeNow(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func BeforeNow(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	ph := str.Placeholder{{Key: "date", Value: "now"}}
 
 	if value.Type() != reflect.TypeFor[time.Time]() {
@@ -84,7 +84,7 @@ func BeforeNow(value reflect.Value, params ...string) (string, str.Placeholder, 
 }
 
 // AfterNow valida que la fecha sea posterior a la fecha actual
-func AfterNow(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func AfterNow(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	ph := str.Placeholder{{Key: "date", Value: "now"}}
 
 	if value.Type() != reflect.TypeFor[time.Time]() {

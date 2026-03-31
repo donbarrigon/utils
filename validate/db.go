@@ -13,7 +13,7 @@ import (
 
 // Unique validates that a value is unique in the specified collection and field
 // Params: [collection, field, excludeId]
-func Unique(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func Unique(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 
 	ph := str.Placeholder{}
 	if len(params) < 3 {
@@ -57,7 +57,7 @@ func Unique(value reflect.Value, params ...string) (string, str.Placeholder, boo
 
 // Exists validates that a value exists in the specified collection and field
 // Params: [collection, field]
-func Exists(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func Exists(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	if len(params) < 2 {
 		return "The collection and field parameters are required.", str.Placeholder{}, true
 	}
@@ -116,7 +116,7 @@ func Exists(value reflect.Value, params ...string) (string, str.Placeholder, boo
 
 // NotExists validates that a value does NOT exist in the specified collection and field
 // Params: [collection, field]
-func NotExists(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func NotExists(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	if len(params) < 2 {
 		return "The collection and field parameters are required.", str.Placeholder{}, true
 	}

@@ -12,7 +12,7 @@ import (
 // type fm.Placeholder map[string]string
 
 // Min valida que el valor sea mayor o igual al mínimo especificado
-func Min(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func Min(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	if len(params) < 1 {
 		return "The minimum parameter is required.", str.Placeholder{}, true
 	}
@@ -89,7 +89,7 @@ func Min(value reflect.Value, params ...string) (string, str.Placeholder, bool) 
 }
 
 // Max valida que el valor sea menor o igual al máximo especificado
-func Max(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func Max(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	if len(params) < 1 {
 		return "The maximum parameter is required.", str.Placeholder{}, true
 	}
@@ -166,7 +166,7 @@ func Max(value reflect.Value, params ...string) (string, str.Placeholder, bool) 
 }
 
 // Between valida que el valor esté dentro del rango especificado
-func Between(value reflect.Value, params ...string) (string, str.Placeholder, bool) {
+func Between(value reflect.Value, params []string) (string, str.Placeholder, bool) {
 	if len(params) < 2 {
 		return "Both minimum and maximum parameters are required.", str.Placeholder{}, true
 	}
