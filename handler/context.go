@@ -28,15 +28,16 @@ import (
 type Context struct {
 	Writer  http.ResponseWriter
 	Request *http.Request
-	handler *Handler
+	Router  *Router
 	Auth    *auth.Session
+	Params  []Param
 }
 
-func NewContext(w http.ResponseWriter, r *http.Request, h *Handler) *Context {
+func NewContext(w http.ResponseWriter, r *http.Request, h *Router) *Context {
 	return &Context{
 		Writer:  w,
 		Request: r,
-		handler: h,
+		Router:  h,
 	}
 }
 
@@ -235,4 +236,59 @@ func (c *Context) ResponseCSV(fileName string, data any, comma ...rune) {
 	c.Writer.Header().Set("Content-Type", "text/csv")
 	c.Writer.Header().Set("Content-Disposition", "attachment;filename="+fileName+".csv")
 	c.Writer.Write(buffer.Bytes())
+}
+
+// Route returns the URL path and HTTP method for a named route.
+// Dynamic segments (*) are replaced in order by the provided params.
+// Returns empty strings if the route name does not exist.
+func (c *Context) Route(name string, params ...string) (string, string) {
+	path, ok := c.Router.RoutesNames[name]
+	if !ok {
+		return "", ""
+	}
+	path = strings.Trim(path, "/")
+	parts := strings.Split(path, "/")
+
+	// el ultimo segmento es el metodo
+	method := strings.ToUpper(parts[len(parts)-1])
+	parts = parts[:len(parts)-1]
+
+	pi := 0
+	for i, part := range parts {
+		if part == "*" && pi < len(params) {
+			parts[i] = params[pi]
+			pi++
+		}
+	}
+	return "/" + strings.Join(parts, "/"), method
+}
+
+// IsActive reports whether the current request matches the named route.
+// Dynamic segments (*) in the stored route accept any value.
+// Returns false if the route name does not exist.
+func (c *Context) IsActive(name string) bool {
+	stored, ok := c.Router.RoutesNames[name]
+	if !ok {
+		return false
+	}
+
+	// url actual + metodo en lowercase igual que como se guarda la ruta
+	current := strings.ToLower(strings.Trim(c.Request.URL.Path, "/")) + "/" + strings.ToLower(c.Request.Method)
+
+	storedParts := strings.Split(stored, "/")
+	currentParts := strings.Split(current, "/")
+
+	if len(storedParts) != len(currentParts) {
+		return false
+	}
+
+	for i, part := range storedParts {
+		if part == "*" {
+			continue
+		}
+		if part != currentParts[i] {
+			return false
+		}
+	}
+	return true
 }

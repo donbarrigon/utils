@@ -17,7 +17,7 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 )
 
-func Start(h *handler.Handler) {
+func Start(h *handler.Router) {
 	config.LoadEnv()
 	db.InitMongoDB()
 	var tlsConfig *tls.Config

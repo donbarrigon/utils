@@ -1,0 +1,28 @@
+{
+  "material-icon-theme.folders.customClones": [
+    {
+      "name": "custom-validate",
+      "base": "rules",
+      "color": "#4CAF50",
+      "folderNames": ["validate"]
+    },
+    {
+      "name": "custom-herror",
+      "base": "error",
+      "color": "#f44336",
+      "folderNames": ["herror"]
+    },
+    {
+      "name": "custom-string",
+      "base": "log",
+      "color": "#2196F3",
+      "folderNames": ["str"]
+    },
+    {
+      "name": "custom-query",
+      "base": "database",
+      "color": "#9C27B0",
+      "folderNames": ["qb"]
+    }
+  ]
+}
